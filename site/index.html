@@ -190,7 +190,7 @@
       <div>
         <div style="display:inline-flex; align-items:center; gap:9px; padding:6px 14px; border-radius:30px; background:rgba(245,217,138,.12); border:1px solid rgba(245,217,138,.3); color:var(--gold); font-size:13px; font-weight:600; margin-bottom:20px;">Un bug ? Un item manquant ?</div>
         <h2 style="font-weight:800; font-size:32px; line-height:1.1; margin-bottom:16px;">Aide à polir Eliadex</h2>
-        <p style="font-size:16px; line-height:1.65; color:var(--muted); margin:0 0 24px;">Un stat erroné, un crash, une idée ? Le formulaire prépare un rapport clair puis t'envoie sur GitHub pour le publier en un clic.</p>
+        <p style="font-size:16px; line-height:1.65; color:var(--muted); margin:0 0 24px;">Un stat erroné, un crash, une idée ? Remplis le formulaire et clique « Envoyer » — c'est transmis directement, sans créer de compte.</p>
         <a class="issues btn-gold" href="#" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5.1 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9 9 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 4-2.4 4.8-4.6 5.1.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.1 10.1 0 0 0 22 12.3C22 6.6 17.5 2 12 2z"/></svg>
           Ouvrir un ticket GitHub
@@ -203,8 +203,9 @@
         <input id="bugtitle" placeholder="Résumé court" style="width:100%; background:rgba(122,232,224,.05); border:1px solid rgba(122,232,224,.18); border-radius:11px; padding:11px; color:#e4f2f5; font-family:'Outfit'; font-size:14px; outline:none; margin-bottom:12px;" />
         <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Description</div>
         <textarea id="bugtext" placeholder="Décris le problème, les étapes, le comportement attendu…" style="width:100%; height:96px; resize:none; background:rgba(122,232,224,.05); border:1px solid rgba(122,232,224,.18); border-radius:11px; padding:12px; color:#e4f2f5; font-family:'Outfit'; font-size:14px; outline:none;"></textarea>
-        <button id="bugsend" style="margin-top:14px; width:100%; padding:13px; border-radius:12px; border:none; background:linear-gradient(135deg,var(--teal),#4fbfc2); color:#062028; font-family:'Outfit'; font-weight:700; font-size:15px; cursor:pointer;">Continuer sur GitHub →</button>
-        <p style="font-size:12px; color:var(--faint); margin:10px 0 0;">Un compte GitHub (gratuit) est requis pour publier.</p>
+        <input id="bughp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; opacity:0; height:0; width:0;" />
+        <button id="bugsend" style="margin-top:14px; width:100%; padding:13px; border-radius:12px; border:none; background:linear-gradient(135deg,var(--teal),#4fbfc2); color:#062028; font-family:'Outfit'; font-weight:700; font-size:15px; cursor:pointer;">Envoyer</button>
+        <p id="bugstatus" style="font-size:12.5px; color:var(--faint); margin:10px 0 0;"></p>
       </div>
     </div>
   </section>
@@ -314,16 +315,47 @@
         if (window.lucide) window.lucide.createIcons();
       }
       renderTypes();
-      document.getElementById("bugsend").onclick = function () {
+
+      var statusEl = document.getElementById("bugstatus");
+      var sendBtn = document.getElementById("bugsend");
+      function setStatus(msg, color) { statusEl.textContent = msg; statusEl.style.color = color || "var(--faint)"; }
+
+      sendBtn.onclick = async function () {
         var t = types[picked];
         var title = (document.getElementById("bugtitle").value || "").trim();
         var desc = (document.getElementById("bugtext").value || "").trim();
+        var hp = document.getElementById("bughp").value; // honeypot (doit rester vide)
+        if (!title || desc.length < 5) { setStatus("Ajoute un titre et une description (min. 5 caractères).", "#f5b13a"); return; }
         var v = params.get("v") || "—", os = params.get("os") || "—";
         var body = desc + "\n\n---\n- Version : " + v + "\n- Système : " + os + "\n";
-        var url = repo + "/issues/new?labels=" + encodeURIComponent(t.tag) +
-          "&title=" + encodeURIComponent(t.prefix + (title || "Signalement")) +
-          "&body=" + encodeURIComponent(body);
-        window.open(url, "_blank", "noopener");
+        var fullTitle = t.prefix + title;
+
+        if (c.bugEndpoint) {
+          // Envoi direct via le Worker → issue créée sans compte GitHub.
+          sendBtn.disabled = true; setStatus("Envoi…", "var(--muted)");
+          try {
+            var r = await fetch(c.bugEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ title: fullTitle, body: body, label: t.tag, website: hp })
+            });
+            var d = await r.json().catch(function () { return {}; });
+            if (r.ok && d.ok) {
+              setStatus("Merci ! Signalement envoyé ✓" + (d.number ? " (#" + d.number + ")" : ""), "#4ade80");
+              document.getElementById("bugtitle").value = "";
+              document.getElementById("bugtext").value = "";
+            } else {
+              setStatus("Échec de l'envoi. Réessaie un peu plus tard.", "#f87171");
+            }
+          } catch (e) {
+            setStatus("Réseau indisponible. Réessaie plus tard.", "#f87171");
+          } finally { sendBtn.disabled = false; }
+        } else {
+          // Fallback (Worker non configuré) : issue GitHub pré-remplie (compte requis).
+          var url = repo + "/issues/new?labels=" + encodeURIComponent(t.tag) +
+            "&title=" + encodeURIComponent(fullTitle) + "&body=" + encodeURIComponent(body);
+          window.open(url, "_blank", "noopener");
+        }
       };
 
       // Remplace tous les <i data-lucide> par leurs SVG (icônes cohérentes avec l'app).
