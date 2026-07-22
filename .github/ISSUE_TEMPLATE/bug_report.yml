@@ -1,0 +1,21 @@
+name: 🐞 Bug / Suggestion
+description: Signaler un bug ou proposer une amélioration
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Que s'est-il passé ? Étapes pour reproduire, comportement attendu.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version de l'app
+      placeholder: "ex. 0.1.0"
+  - type: input
+    id: os
+    attributes:
+      label: Système
+      placeholder: "ex. macOS 15 / Windows 11"
