@@ -62,6 +62,21 @@ jobs:
           cd ingest && bun install && bun run build
           cd ../app && bun install && bun run sync:db
 
+      - name: DEBUG images (diagnostic embarquement)
+        shell: bash
+        working-directory: app
+        run: |
+          echo "### public/img (après ingest):"
+          du -sh public/img 2>/dev/null || echo "  ABSENT"
+          find public/img -type f 2>/dev/null | wc -l
+          echo "### next build explicite:"
+          bun run build
+          echo "### out/img (après next build):"
+          du -sh out/img 2>/dev/null || echo "  ABSENT"
+          find out/img -type f 2>/dev/null | wc -l
+          echo "### out total:"
+          du -sh out 2>/dev/null || echo "  ABSENT"
+
       # Build Tauri (non signé). tagName absent -> ne crée pas de release ici ;
       # on publie ensuite les artefacts via softprops (gère chemins Windows + globs).
       - uses: tauri-apps/tauri-action@v0
