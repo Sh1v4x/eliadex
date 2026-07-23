@@ -168,7 +168,7 @@
         </div>
         <h3 style="font-weight:700; font-size:22px; margin-bottom:5px;">Windows</h3>
         <p style="font-size:13px; color:var(--muted2); margin:0 0 20px;">Windows 10 / 11 · 64-bit</p>
-        <a class="dl btn-gold" href="#" target="_blank" rel="noopener" style="width:100%; justify-content:center;">Télécharger .msi</a>
+        <a class="dl-win btn-gold" href="#" rel="noopener" style="width:100%; justify-content:center;">Télécharger .msi</a>
         <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · dernière version</div>
       </div>
       <div class="card" style="padding:34px 30px; text-align:center;">
@@ -177,7 +177,7 @@
         </div>
         <h3 style="font-weight:700; font-size:22px; margin-bottom:5px;">macOS</h3>
         <p style="font-size:13px; color:var(--muted2); margin:0 0 20px;">macOS 12+ · Apple Silicon</p>
-        <a class="dl btn-gold" href="#" target="_blank" rel="noopener" style="width:100%; justify-content:center;">Télécharger .dmg</a>
+        <a class="dl-mac btn-gold" href="#" rel="noopener" style="width:100%; justify-content:center;">Télécharger .dmg</a>
         <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · dernière version</div>
       </div>
     </div>
@@ -191,10 +191,6 @@
         <div style="display:inline-flex; align-items:center; gap:9px; padding:6px 14px; border-radius:30px; background:rgba(245,217,138,.12); border:1px solid rgba(245,217,138,.3); color:var(--gold); font-size:13px; font-weight:600; margin-bottom:20px;">Un bug ? Un item manquant ?</div>
         <h2 style="font-weight:800; font-size:32px; line-height:1.1; margin-bottom:16px;">Aide à polir Eliadex</h2>
         <p style="font-size:16px; line-height:1.65; color:var(--muted); margin:0 0 24px;">Un stat erroné, un crash, une idée ? Remplis le formulaire et clique « Envoyer » — on s'occupe du reste.</p>
-        <a class="issues btn-gold" href="#" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5.1 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9 9 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 4-2.4 4.8-4.6 5.1.4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.1 10.1 0 0 0 22 12.3C22 6.6 17.5 2 12 2z"/></svg>
-          Ouvrir un ticket GitHub
-        </a>
       </div>
       <div style="background:rgba(6,18,25,.6); border:1px solid rgba(122,232,224,.14); border-radius:18px; padding:24px;">
         <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Type de signalement</div>
@@ -258,10 +254,35 @@
       var c = window.ELIADEX || {};
       var repo = "https://github.com/" + c.owner + "/" + c.repo;
       // liens dynamiques
-      document.querySelectorAll("a.dl").forEach(function (a) { a.href = repo + "/releases/latest"; });
       document.querySelectorAll("a.gh").forEach(function (a) { a.href = repo; });
-      document.querySelectorAll("a.issues").forEach(function (a) { a.href = repo + "/issues/new"; });
       document.querySelectorAll("a.coffee").forEach(function (a) { a.href = c.buymeacoffee || "#"; });
+
+      // TÉLÉCHARGEMENT DIRECT — on interroge la dernière release via l'API GitHub
+      // et on pointe chaque bouton sur l'installeur (.msi / .dmg) en téléchargement
+      // instantané. Aucune modif du site nécessaire à chaque release : lu en direct.
+      // Fallback (pas de release / API indispo) : page releases/latest de GitHub.
+      var dlWin = document.querySelector("a.dl-win");
+      var dlMac = document.querySelector("a.dl-mac");
+      [dlWin, dlMac].forEach(function (a) { if (a) a.href = repo + "/releases/latest"; });
+      function pickAsset(assets, exts) {
+        for (var i = 0; i < assets.length; i++) {
+          var n = (assets[i].name || "").toLowerCase();
+          for (var j = 0; j < exts.length; j++) {
+            if (n.endsWith(exts[j])) return assets[i].browser_download_url;
+          }
+        }
+        return null;
+      }
+      fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases/latest", {
+        headers: { Accept: "application/vnd.github+json" }
+      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rel) {
+        if (!rel || !rel.assets) return;
+        var assets = rel.assets;
+        var win = pickAsset(assets, [".msi", "-setup.exe", ".exe"]);
+        var mac = pickAsset(assets, [".dmg"]);
+        if (dlWin && win) dlWin.href = win;
+        if (dlMac && mac) dlMac.href = mac;
+      }).catch(function () { /* garde le fallback releases/latest */ });
 
       // FONCTIONS
       var feats = [

@@ -1,0 +1,82 @@
+# Build multi-OS d'Eliadex + publication de la Release — tourne dans le dépôt
+# PUBLIC (minutes GitHub Actions illimitées et gratuites pour un dépôt public).
+#
+# Le code source vit dans le dépôt PRIVÉ `eliadex-source` : ce workflow le
+# checkout via le secret SOURCE_TOKEN (PAT avec Contents: Read sur le privé),
+# build macOS + Windows, puis publie la Release ICI via le GITHUB_TOKEN intégré.
+#
+# Prérequis (Settings > Secrets du dépôt public) :
+#   SOURCE_TOKEN = PAT (fine-grained: Contents Read sur Sh1v4x/eliadex-source).
+#
+# Déclenchement : onglet Actions > "Build & Release" > Run workflow (choisis le
+# tag, ex. v0.1.0). Ou pousse un tag v*.*.* sur CE dépôt.
+name: Build & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de version de la release (ex. v0.1.0)"
+        required: true
+      ref:
+        description: "Ref source à builder (branche ou tag du dépôt privé)"
+        required: false
+        default: main
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_REPO: Sh1v4x/eliadex-source
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: "--target aarch64-apple-darwin"
+            rust_target: aarch64-apple-darwin
+          - os: windows-latest
+            args: ""
+            rust_target: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout de la source privée
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ github.event.inputs.ref || 'main' }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Générer les données de jeu + images
+        run: |
+          cd ingest && bun install && bun run build
+          cd ../app && bun install && bun run sync:db
+
+      # Build Tauri (non signé). tagName absent -> ne crée pas de release ici ;
+      # on publie ensuite les artefacts via softprops (gère chemins Windows + globs).
+      - uses: tauri-apps/tauri-action@v0
+        id: tauri
+        with:
+          projectPath: app
+          args: ${{ matrix.args }}
+
+      - name: Publier la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: Eliadex ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            app/src-tauri/target/**/release/bundle/**/*.dmg
+            app/src-tauri/target/**/release/bundle/**/*.msi
+            app/src-tauri/target/**/release/bundle/**/*-setup.exe
+          fail_on_unmatched_files: false
