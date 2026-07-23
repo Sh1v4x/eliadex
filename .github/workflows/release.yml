@@ -70,6 +70,18 @@ jobs:
           projectPath: app
           args: ${{ matrix.args }}
 
+      # Empreintes SHA-256 de chaque installeur → garantie d'intégrité (gratuit,
+      # portable macOS/Windows). Publiées à côté des installeurs (.sha256).
+      - name: Générer les checksums SHA-256
+        shell: bash
+        run: |
+          set -e
+          hash() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1"; else shasum -a 256 "$1"; fi; }
+          find app/src-tauri/target -type f \( -name '*.dmg' -o -name '*.msi' -o -name '*-setup.exe' \) | while read -r f; do
+            hash "$f" | awk -v n="$(basename "$f")" '{print $1"  "n}' > "$f.sha256"
+            echo "→ $f.sha256"; cat "$f.sha256"
+          done
+
       - name: Publier la Release
         uses: softprops/action-gh-release@v2
         with:
@@ -79,4 +91,5 @@ jobs:
             app/src-tauri/target/**/release/bundle/**/*.dmg
             app/src-tauri/target/**/release/bundle/**/*.msi
             app/src-tauri/target/**/release/bundle/**/*-setup.exe
+            app/src-tauri/target/**/release/bundle/**/*.sha256
           fail_on_unmatched_files: false
