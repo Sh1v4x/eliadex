@@ -62,34 +62,35 @@ jobs:
           cd ingest && bun install && bun run build
           cd ../app && bun install && bun run sync:db
 
-      # Build Tauri (non signé). tagName absent -> ne crée pas de release ici ;
-      # on publie ensuite les artefacts via softprops (gère chemins Windows + globs).
-      - uses: tauri-apps/tauri-action@v0
+      # Build Tauri + publication de la Release dans CE dépôt public : installeurs
+      # (.msi/.exe/.dmg) + artefacts updater signés (.sig) + latest.json. Avec un
+      # tagName, tauri-action crée/maj la release via GITHUB_TOKEN et fusionne
+      # latest.json entre les deux plateformes de la matrice.
+      - name: Build & publication de la Release
+        uses: tauri-apps/tauri-action@v0
         id: tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: app
           args: ${{ matrix.args }}
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: Eliadex ${{ github.event.inputs.tag || github.ref_name }}
+          releaseDraft: false
+          prerelease: false
 
-      # Empreintes SHA-256 de chaque installeur → garantie d'intégrité (gratuit,
-      # portable macOS/Windows). Publiées à côté des installeurs (.sha256).
-      - name: Générer les checksums SHA-256
+      # Empreintes SHA-256 (intégrité) ajoutées à la release.
+      - name: Checksums SHA-256
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
           hash() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1"; else shasum -a 256 "$1"; fi; }
           find app/src-tauri/target -type f \( -name '*.dmg' -o -name '*.msi' -o -name '*-setup.exe' \) | while read -r f; do
             hash "$f" | awk -v n="$(basename "$f")" '{print $1"  "n}' > "$f.sha256"
-            echo "→ $f.sha256"; cat "$f.sha256"
+            gh release upload "$TAG" "$f.sha256" --repo "${{ github.repository }}" --clobber || true
           done
-
-      - name: Publier la Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
-          name: Eliadex ${{ github.event.inputs.tag || github.ref_name }}
-          files: |
-            app/src-tauri/target/**/release/bundle/**/*.dmg
-            app/src-tauri/target/**/release/bundle/**/*.msi
-            app/src-tauri/target/**/release/bundle/**/*-setup.exe
-            app/src-tauri/target/**/release/bundle/**/*.sha256
-          fail_on_unmatched_files: false
