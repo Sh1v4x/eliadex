@@ -35,6 +35,9 @@ jobs:
   build:
     strategy:
       fail-fast: false
+      # Sérialisé : les jobs publient tour à tour dans la même release et
+      # fusionnent latest.json (sinon course → une plateforme écrase l'autre).
+      max-parallel: 1
       matrix:
         include:
           - os: macos-latest
