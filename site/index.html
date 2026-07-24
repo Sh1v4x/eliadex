@@ -110,6 +110,7 @@
   <!-- TRUST BAR -->
   <div class="wrap" style="margin-bottom:20px;">
     <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px 40px; padding:22px; border-top:1px solid rgba(122,232,224,.1); border-bottom:1px solid rgba(122,232,224,.1);">
+      <div id="dlcount-wrap" style="display:none; align-items:baseline; gap:9px;"><span id="dlcount" style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">—</span><span style="font-size:13.5px; color:var(--muted2);">téléchargements</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">10 000+</span><span style="font-size:13.5px; color:var(--muted2);">items référencés</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">14</span><span style="font-size:13.5px; color:var(--muted2);">emplacements d'équipement</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">100%</span><span style="font-size:13.5px; color:var(--muted2);">hors-ligne</span></div>
@@ -335,6 +336,30 @@
         if (dlWin && win) dlWin.href = win;
         if (dlMac && mac) dlMac.href = mac;
       }).catch(function () { /* garde le fallback releases/latest */ });
+
+      // Compteur de téléchargements : somme des download_count des installeurs
+      // (.msi / -setup.exe / .dmg) sur toutes les releases. Lecture seule de
+      // l'API GitHub, aucune donnée collectée. Masqué si l'API est indispo.
+      fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases?per_page=100", {
+        headers: { Accept: "application/vnd.github+json" }
+      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rels) {
+        if (!Array.isArray(rels)) return;
+        var total = 0;
+        rels.forEach(function (rel) {
+          (rel.assets || []).forEach(function (a) {
+            var n = (a.name || "").toLowerCase();
+            if (n.endsWith(".msi") || n.endsWith("-setup.exe") || n.endsWith(".dmg")) {
+              total += a.download_count || 0;
+            }
+          });
+        });
+        var el = document.getElementById("dlcount");
+        var wrap = document.getElementById("dlcount-wrap");
+        if (el && wrap) {
+          el.textContent = total.toLocaleString("fr-FR");
+          wrap.style.display = "flex";
+        }
+      }).catch(function () { /* compteur masqué si indispo */ });
 
       // FONCTIONS
       var feats = [
