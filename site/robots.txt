@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sh1v4x.github.io/eliadex/sitemap.xml
