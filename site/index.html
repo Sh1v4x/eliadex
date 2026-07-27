@@ -84,6 +84,16 @@
     .grid2{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
     @media(max-width:820px){ .grid3{grid-template-columns:1fr;} .grid2{grid-template-columns:1fr;}
       .hero{grid-template-columns:1fr!important;} .heroArt{display:none!important;} h1{font-size:44px!important;} }
+    .navtoggle{ display:none; align-items:center; justify-content:center; background:rgba(122,232,224,.08);
+      border:1px solid rgba(122,232,224,.3); color:var(--ink); border-radius:10px; width:42px; height:42px; cursor:pointer; }
+    .navtoggle:hover{ border-color:var(--gold); color:var(--gold); }
+    .mobilemenu{ display:none; flex-direction:column; gap:2px; padding:8px 22px 18px;
+      background:rgba(7,20,27,.97); border-top:1px solid rgba(122,232,224,.1); }
+    .mobilemenu.open{ display:flex; }
+    .mobilemenu a{ color:#cfe0e6; padding:12px 8px; border-radius:9px; font-weight:500; font-size:15.5px; }
+    .mobilemenu a:hover{ background:rgba(122,232,224,.08); color:var(--gold); }
+    .mobilemenu a.btn-gold{ justify-content:center; margin-top:10px; color:#25180a; }
+    @media(max-width:820px){ .navlinks{ display:none!important; } .navcta{ display:none!important; } .navtoggle{ display:inline-flex; } }
   </style>
 </head>
 <body>
@@ -103,7 +113,16 @@
         <a href="#bug" style="color:#b7ccd4;">Signaler un bug</a>
         <a class="gh" href="#" target="_blank" rel="noopener" style="color:#b7ccd4;">GitHub</a>
       </div>
-      <a class="btn-gold" href="#telecharger" style="padding:10px 20px; font-size:14px;"><i data-lucide="download" style="font-size:15px;"></i> Télécharger</a>
+      <a class="btn-gold navcta" href="#telecharger" style="padding:10px 20px; font-size:14px;"><i data-lucide="download" style="font-size:15px;"></i> Télécharger</a>
+      <button class="navtoggle" onclick="toggleMenu()" aria-label="Ouvrir le menu"><i data-lucide="menu"></i></button>
+    </div>
+    <div class="mobilemenu" id="mobilemenu">
+      <a href="#fonctions">Fonctions</a>
+      <a href="#apercu">Aperçu</a>
+      <a href="patchnote/">Patchnote</a>
+      <a href="#bug">Signaler un bug</a>
+      <a class="gh" href="#" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn-gold" href="#telecharger"><i data-lucide="download"></i> Télécharger</a>
     </div>
   </nav>
 
@@ -496,6 +515,12 @@
       // Remplace tous les <i data-lucide> par leurs SVG (icônes cohérentes avec l'app).
       if (window.lucide) window.lucide.createIcons();
     })();
+  </script>
+  <script>
+    function toggleMenu(){ document.getElementById("mobilemenu").classList.toggle("open"); }
+    document.querySelectorAll("#mobilemenu a").forEach(function(a){
+      a.addEventListener("click", function(){ document.getElementById("mobilemenu").classList.remove("open"); });
+    });
   </script>
 </body>
 </html>
