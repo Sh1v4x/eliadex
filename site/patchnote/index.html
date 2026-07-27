@@ -17,7 +17,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="../config.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
+    svg.lucide{ width:1em; height:1em; vertical-align:-.12em; stroke-width:2; }
     :root{
       --teal:#7fe8e0; --gold:#f5d98a; --gold2:#d4a437;
       --ink:#dce9ee; --muted:#a9c1c9; --muted2:#8fabb4; --faint:#6d8790;
@@ -88,7 +90,7 @@
 
   <div class="content">
     <div class="wrap">
-      <a href="../" class="back">← Retour à l'accueil</a>
+      <a href="../" class="back"><i data-lucide="arrow-left"></i> Retour à l'accueil</a>
       <div class="eyebrow">Journal des versions</div>
       <h1>Patchnote</h1>
       <p class="lead">Toutes les nouveautés et corrections d'Eliadex, mises à jour <strong>en direct</strong> à chaque version.</p>
@@ -100,6 +102,7 @@
     (function () {
       var c = window.ELIADEX || { owner: "Sh1v4x", repo: "eliadex" };
       var el = document.getElementById("pn-list");
+      if (window.lucide) window.lucide.createIcons(); // icône du lien "Retour"
 
       function esc(s) { return String(s).replace(/[&<>]/g, function (x) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]; }); }
       function bold(s) { return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
@@ -110,7 +113,12 @@
           var line = raw.trim();
           if (!line) { close(); return; }
           var m;
-          if ((m = line.match(/^#{1,6}\s+(.*)$/))) { close(); out += '<div class="pn-sub">' + bold(esc(m[1])) + "</div>"; }
+          if ((m = line.match(/^#{1,6}\s+(.*)$/))) {
+            close();
+            var label = m[1].replace(/^[^\p{L}]+/u, "").trim(); // retire l'emoji/espaces de tête
+            var icon = /nouveaut/i.test(label) ? "sparkles" : /correction/i.test(label) ? "bug" : "chevron-right";
+            out += '<div class="pn-sub"><i data-lucide="' + icon + '"></i> ' + bold(esc(label)) + "</div>";
+          }
           else if ((m = line.match(/^[-*]\s+(.*)$/))) { if (!inList) { out += '<ul class="pn-list">'; inList = true; } out += "<li>" + bold(esc(m[1])) + "</li>"; }
           else { close(); out += "<p>" + bold(esc(line)) + "</p>"; }
         });
@@ -141,6 +149,7 @@
               + '<div class="pn-body">' + (r.body ? md(r.body) : '<p class="muted">—</p>') + "</div>"
               + "</article>";
           }).join("");
+          if (window.lucide) window.lucide.createIcons(); // icônes des sections (sparkles/bug)
         }).catch(function () {
           el.innerHTML = '<p class="muted">Patchnote indisponible pour le moment.</p>';
         });
