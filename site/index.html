@@ -350,7 +350,7 @@
         return null;
       }
       fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases/latest", {
-        headers: { Accept: "application/vnd.github+json" }
+        headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
       }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rel) {
         if (!rel || !rel.assets) return;
         var assets = rel.assets;
@@ -364,7 +364,7 @@
       // (.msi / -setup.exe / .dmg) sur toutes les releases. Lecture seule de
       // l'API GitHub, aucune donnée collectée. Masqué si l'API est indispo.
       fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases?per_page=100", {
-        headers: { Accept: "application/vnd.github+json" }
+        headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
       }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rels) {
         if (!Array.isArray(rels)) return;
         var total = 0;
