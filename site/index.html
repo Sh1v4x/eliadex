@@ -295,6 +295,8 @@
       <div style="background:rgba(6,18,25,.6); border:1px solid rgba(122,232,224,.14); border-radius:18px; padding:24px;">
         <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Type de signalement</div>
         <div id="bugtypes" style="display:flex; gap:8px; margin-bottom:16px;"></div>
+        <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Ton pseudo <span style="color:var(--faint); font-weight:400;">(pour te remercier)</span></div>
+        <input id="bugpseudo" placeholder="Ton pseudo en jeu" style="width:100%; background:rgba(122,232,224,.05); border:1px solid rgba(122,232,224,.18); border-radius:11px; padding:11px; color:#e4f2f5; font-family:'Outfit'; font-size:14px; outline:none; margin-bottom:12px;" />
         <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Titre</div>
         <input id="bugtitle" placeholder="Résumé court" style="width:100%; background:rgba(122,232,224,.05); border:1px solid rgba(122,232,224,.18); border-radius:11px; padding:11px; color:#e4f2f5; font-family:'Outfit'; font-size:14px; outline:none; margin-bottom:12px;" />
         <div style="font-size:13px; color:var(--muted2); margin-bottom:8px; font-weight:600;">Description</div>
@@ -478,10 +480,11 @@
         var t = types[picked];
         var title = (document.getElementById("bugtitle").value || "").trim();
         var desc = (document.getElementById("bugtext").value || "").trim();
+        var pseudo = (document.getElementById("bugpseudo").value || "").trim();
         var hp = document.getElementById("bughp").value; // honeypot (doit rester vide)
         if (!title || desc.length < 5) { setStatus("Ajoute un titre et une description (min. 5 caractères).", "#f5b13a"); return; }
         var v = params.get("v") || "—", os = params.get("os") || "—";
-        var body = desc + "\n\n---\n- Version : " + v + "\n- Système : " + os + "\n";
+        var body = desc + "\n\n---\n" + (pseudo ? "- Pseudo : " + pseudo + "\n" : "") + "- Version : " + v + "\n- Système : " + os + "\n";
         var fullTitle = t.prefix + title;
 
         if (c.bugEndpoint) {
