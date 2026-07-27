@@ -122,25 +122,28 @@
         catch (e) { return ""; }
       }
 
-      fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases?per_page=100", {
-        headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
-      }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rels) {
-        if (!Array.isArray(rels)) rels = [];
-        var list = rels.filter(function (r) { return !r.draft && !r.prerelease; });
-        if (!list.length) { el.innerHTML = '<p class="muted">Aucune version publiée pour le moment.</p>'; return; }
-        el.innerHTML = list.map(function (r, i) {
-          return '<article class="card pn-card">'
-            + '<div class="pn-head">'
-            + '<span class="pn-ver">' + esc(r.tag_name) + "</span>"
-            + '<span class="pn-date">' + frDate(r.published_at) + "</span>"
-            + (i === 0 ? '<span class="pn-latest">Dernière</span>' : "")
-            + "</div>"
-            + '<div class="pn-body">' + (r.body ? md(r.body) : '<p class="muted">—</p>') + "</div>"
-            + "</article>";
-        }).join("");
-      }).catch(function () {
-        el.innerHTML = '<p class="muted">Patchnote momentanément indisponible.</p>';
-      });
+      // Source : data.json statique généré au déploiement (depuis les releases,
+      // dont le corps vient du CHANGELOG). Local → pas de rate-limit API.
+      fetch("data.json", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (list) {
+          if (!Array.isArray(list) || !list.length) {
+            el.innerHTML = '<p class="muted">Patchnote indisponible pour le moment.</p>';
+            return;
+          }
+          el.innerHTML = list.map(function (r, i) {
+            return '<article class="card pn-card">'
+              + '<div class="pn-head">'
+              + '<span class="pn-ver">' + esc(r.tag) + "</span>"
+              + '<span class="pn-date">' + frDate(r.date) + "</span>"
+              + (i === 0 ? '<span class="pn-latest">Dernière</span>' : "")
+              + "</div>"
+              + '<div class="pn-body">' + (r.body ? md(r.body) : '<p class="muted">—</p>') + "</div>"
+              + "</article>";
+          }).join("");
+        }).catch(function () {
+          el.innerHTML = '<p class="muted">Patchnote indisponible pour le moment.</p>';
+        });
     })();
   </script>
 </body>
