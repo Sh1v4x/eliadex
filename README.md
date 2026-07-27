@@ -15,10 +15,6 @@ Site : **https://sh1v4x.github.io/eliadex/**
 Via le site (formulaire) ou directement dans les
 [Issues](https://github.com/Sh1v4x/eliadex/issues/new).
 
-## Soutenir
-
-[☕ Buy me a coffee](https://buymeacoffee.com/shivax)
-
 ---
 
 Outil communautaire **non officiel**, à usage non commercial. WAKFU® et les
