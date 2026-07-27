@@ -6,6 +6,9 @@ on:
   push:
     branches: [main]
     paths: ["site/**", ".github/workflows/pages.yml"]
+  # Re-déploie (donc régénère le patchnote statique) quand une release change.
+  release:
+    types: [published, edited, deleted]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +28,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Patchnote statique : on fige les releases (dont le corps vient du
+      # CHANGELOG) dans site/patchnote/data.json. La page /patchnote/ lit ce
+      # fichier local → aucun appel à l'API GitHub depuis le navigateur (donc
+      # plus de rate-limit 60/h par IP). Regénéré à chaque déploiement.
+      - name: Génère le patchnote statique (data.json)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p site/patchnote
+          gh api "repos/${{ github.repository }}/releases?per_page=100" \
+            --jq '[.[] | select(.draft==false and .prerelease==false)
+                   | {tag: .tag_name, date: .published_at, body: .body,
+                      assets: [.assets[] | {name: .name, url: .browser_download_url, dc: .download_count}]}]' \
+            > site/patchnote/data.json || echo '[]' > site/patchnote/data.json
+          echo "data.json : $(wc -c < site/patchnote/data.json) octets, $(grep -o '\"tag\"' site/patchnote/data.json | wc -l) versions"
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
