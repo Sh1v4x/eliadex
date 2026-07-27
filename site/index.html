@@ -99,6 +99,7 @@
       <div style="display:flex; align-items:center; gap:26px; font-size:14.5px; font-weight:500;" class="navlinks">
         <a href="#fonctions" style="color:#b7ccd4;">Fonctions</a>
         <a href="#apercu" style="color:#b7ccd4;">Aperçu</a>
+        <a href="patchnote/" style="color:#b7ccd4;">Patchnote</a>
         <a href="#bug" style="color:#b7ccd4;">Signaler un bug</a>
         <a class="gh" href="#" target="_blank" rel="noopener" style="color:#b7ccd4;">GitHub</a>
       </div>
@@ -198,7 +199,7 @@
         <h3 style="font-weight:700; font-size:22px; margin-bottom:5px;">Windows</h3>
         <p style="font-size:13px; color:var(--muted2); margin:0 0 20px;">Windows 10 / 11 · 64-bit</p>
         <a class="dl-win btn-gold" href="#" rel="noopener" style="width:100%; justify-content:center;">Télécharger .msi</a>
-        <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · dernière version</div>
+        <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · <span class="dlver">dernière version</span></div>
       </div>
       <div class="card" style="padding:34px 30px; text-align:center;">
         <div style="width:58px; height:58px; margin:0 auto 16px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:rgba(122,232,224,.1); color:var(--teal);">
@@ -207,7 +208,7 @@
         <h3 style="font-weight:700; font-size:22px; margin-bottom:5px;">macOS</h3>
         <p style="font-size:13px; color:var(--muted2); margin:0 0 20px;">macOS 12+ · Apple Silicon</p>
         <a class="dl-mac btn-gold" href="#" rel="noopener" style="width:100%; justify-content:center;">Télécharger .dmg</a>
-        <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · dernière version</div>
+        <div style="font-size:12px; color:var(--faint); margin-top:12px;">~100 Mo · <span class="dlver">dernière version</span></div>
       </div>
     </div>
     <p style="text-align:center; font-size:13px; color:var(--faint); margin-top:24px;">Premier lancement ? Suis les <a href="#installation">étapes d'ouverture</a> ci-dessous. Toutes les versions sont sur <a class="gh" href="#" target="_blank" rel="noopener">GitHub Releases</a>.</p>
@@ -357,6 +358,7 @@
       fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases/latest", {
         headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
       }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rel) {
+        if (rel && rel.tag_name) document.querySelectorAll(".dlver").forEach(function (x) { x.textContent = rel.tag_name; });
         if (!rel || !rel.assets) return;
         var assets = rel.assets;
         var win = pickAsset(assets, [".msi", "-setup.exe", ".exe"]);
