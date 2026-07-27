@@ -308,16 +308,6 @@
     </div>
   </section>
 
-  <!-- BUY ME A COFFEE -->
-  <section id="soutenir" class="wrap sect" style="padding-top:20px;">
-    <div class="card" style="text-align:center; padding:48px 30px; border-color:rgba(245,217,138,.22); background:linear-gradient(160deg, rgba(46,34,14,.4), rgba(10,31,42,.85));">
-      <div style="font-size:34px; margin-bottom:8px; color:var(--gold);"><i data-lucide="coffee"></i></div>
-      <h2 style="font-weight:800; font-size:30px; margin-bottom:12px;">Soutiens le projet</h2>
-      <p style="font-size:16px; color:var(--muted); max-width:520px; margin:0 auto 26px;">Eliadex est développé sur mon temps libre, gratuitement. Si l'appli t'aide, tu peux m'offrir un café — ça fait toujours plaisir et ça aide à continuer.</p>
-      <a class="coffee" href="#" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:10px; padding:15px 28px; border-radius:14px; background:#ffdd00; color:#1a1a1a; font-weight:700; font-size:16px; box-shadow:0 10px 30px rgba(255,221,0,.25);"><i data-lucide="coffee" style="font-size:18px;"></i> Buy me a coffee</a>
-    </div>
-  </section>
-
   <!-- FOOTER + LICENCE -->
   <footer style="border-top:1px solid rgba(122,232,224,.12); background:rgba(6,16,22,.7); padding:52px 0 40px; position:relative; z-index:2;">
     <div class="wrap">
@@ -365,7 +355,6 @@
       }).catch(function () {});
       // liens dynamiques
       document.querySelectorAll("a.gh").forEach(function (a) { a.href = repo; });
-      document.querySelectorAll("a.coffee").forEach(function (a) { a.href = c.buymeacoffee || "#"; });
 
       // TÉLÉCHARGEMENT DIRECT — on interroge la dernière release via l'API GitHub
       // et on pointe chaque bouton sur l'installeur (.msi / .dmg) en téléchargement
