@@ -335,6 +335,13 @@
     (function () {
       var c = window.ELIADEX || {};
       var repo = "https://github.com/" + c.owner + "/" + c.repo;
+      // Version affichée fiable : lue depuis le patchnote statique local (data.json),
+      // pas depuis l'API GitHub (rate-limitée). Écrase l'éventuelle valeur API.
+      fetch("patchnote/data.json", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : []; }).then(function (list) {
+        if (Array.isArray(list) && list[0] && list[0].tag) {
+          document.querySelectorAll(".dlver").forEach(function (x) { x.textContent = list[0].tag; });
+        }
+      }).catch(function () {});
       // liens dynamiques
       document.querySelectorAll("a.gh").forEach(function (a) { a.href = repo; });
       document.querySelectorAll("a.coffee").forEach(function (a) { a.href = c.buymeacoffee || "#"; });
