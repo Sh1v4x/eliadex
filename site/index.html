@@ -158,7 +158,7 @@
   <!-- TRUST BAR -->
   <div class="wrap" style="margin-bottom:20px;">
     <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px 40px; padding:22px; border-top:1px solid rgba(122,232,224,.1); border-bottom:1px solid rgba(122,232,224,.1);">
-      <div id="dlcount-wrap" style="display:none; align-items:baseline; gap:9px;"><span id="dlcount" style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">—</span><span style="font-size:13.5px; color:var(--muted2);">téléchargements</span></div>
+      <div id="dlcount-wrap" style="display:flex; align-items:baseline; gap:9px;"><span id="dlcount" style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">—</span><span style="font-size:13.5px; color:var(--muted2);">téléchargements</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">10 000+</span><span style="font-size:13.5px; color:var(--muted2);">items référencés</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">99%</span><span style="font-size:13.5px; color:var(--muted2);">hors connexion</span></div>
       <div style="display:flex; align-items:baseline; gap:9px;"><span style="font-family:'Cinzel',serif; font-weight:800; font-size:26px; color:var(--gold);">0</span><span style="font-size:13.5px; color:var(--muted2);">compte requis</span></div>
@@ -390,28 +390,39 @@
       }).catch(function () { /* garde le fallback releases/latest */ });
 
       // Compteur de téléchargements : somme des download_count des installeurs
-      // (.msi / -setup.exe / .dmg) sur toutes les releases. Lecture seule de
-      // l'API GitHub, aucune donnée collectée. Masqué si l'API est indispo.
-      fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases?per_page=100", {
-        headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
-      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rels) {
-        if (!Array.isArray(rels)) return;
-        var total = 0;
-        rels.forEach(function (rel) {
-          (rel.assets || []).forEach(function (a) {
-            var n = (a.name || "").toLowerCase();
-            if (n.endsWith(".msi") || n.endsWith("-setup.exe") || n.endsWith(".dmg")) {
-              total += a.download_count || 0;
-            }
-          });
-        });
+      // (.msi / -setup.exe / .dmg). Source primaire : patchnote/data.json (même
+      // origine, régénéré à chaque déploiement, sans rate-limit) ; repli sur
+      // l'API GitHub. Toujours affiché ("—" tant qu'aucun total n'est dispo).
+      (function () {
         var el = document.getElementById("dlcount");
-        var wrap = document.getElementById("dlcount-wrap");
-        if (el && wrap) {
-          el.textContent = total.toLocaleString("fr-FR");
-          wrap.style.display = "flex";
+        function isInstaller(n) {
+          n = (n || "").toLowerCase();
+          return n.endsWith(".msi") || n.endsWith("-setup.exe") || n.endsWith(".dmg");
         }
-      }).catch(function () { /* compteur masqué si indispo */ });
+        function show(total) { if (el && total > 0) el.textContent = total.toLocaleString("fr-FR"); }
+        function sum(rels, key) {
+          var total = 0;
+          (rels || []).forEach(function (rel) {
+            (rel.assets || []).forEach(function (a) { if (isInstaller(a.name)) total += a[key] || 0; });
+          });
+          return total;
+        }
+        fetch("patchnote/data.json", { cache: "no-store" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (rels) {
+            if (!Array.isArray(rels)) throw 0;
+            var total = sum(rels, "dc");
+            if (total > 0) { show(total); return; }
+            throw 0;
+          })
+          .catch(function () {
+            fetch("https://api.github.com/repos/" + c.owner + "/" + c.repo + "/releases?per_page=100", {
+              headers: { Accept: "application/vnd.github+json" }, cache: "no-store"
+            }).then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (rels) { if (Array.isArray(rels)) show(sum(rels, "download_count")); })
+              .catch(function () { /* garde "—" */ });
+          });
+      })();
 
       // FONCTIONS
       var feats = [
