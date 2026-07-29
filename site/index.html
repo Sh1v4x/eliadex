@@ -174,11 +174,9 @@
     <div class="grid3" id="feats"></div>
     <p style="text-align:center; margin:34px auto 0; max-width:640px; font-size:13.5px; line-height:1.6; color:#9bb6bf;">
       <i data-lucide="wifi" style="width:15px;height:15px;vertical-align:-2px;"></i>
-      <strong style="color:#cfe3e9;">Transparence — fonctionnalités nécessitant Internet :</strong>
-      pour l'instant uniquement les <strong style="color:#cfe3e9;">Rotations du jour</strong>
-      (donjons du jour, Modulox, Néo-Boss, Almanax), tirées d'un calendrier communautaire mis à jour
-      en ligne. Hors connexion, cette section affiche un message dédié ; tout le reste d'Eliadex
-      fonctionne hors-ligne.
+      <strong style="color:#cfe3e9;">Transparence — connexion Internet :</strong>
+      certaines fonctionnalités nécessitent une connexion, mais <strong style="color:#cfe3e9;">99 %
+      d'Eliadex reste utilisable hors ligne</strong>.
     </p>
   </section>
 
@@ -422,7 +420,7 @@
         ["star","Favoris & sets","Listes à crafter (avec coche « fait »), sets par niveau et stats cumulées."],
         ["map-pin","Où trouver","Récolte (métier, zones) et drops monstres (donjon, niveau, taux)."],
         ["pin","Épinglé au premier plan","Reste visible par-dessus le jeu, en fenêtre normale ou compacte."],
-        ["wifi-off","99% hors connexion","Données et images embarquées : tout marche hors-ligne, sauf les rotations du jour."]
+        ["wifi-off","99% hors connexion","Toutes les données et images sont embarquées ; seules quelques fonctionnalités nécessitent Internet."]
       ];
       document.getElementById("feats").innerHTML = feats.map(function (f) {
         return '<div class="card" style="padding:26px;"><div style="width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:rgba(122,232,224,.1);color:#7fe8e0;font-size:24px;"><i data-lucide="' + f[0] + '"></i></div><h3 style="font-weight:700;font-size:19px;margin-bottom:9px;">' + f[1] + '</h3><p style="font-size:14.5px;line-height:1.6;color:#9bb6bf;margin:0;">' + f[2] + '</p></div>';
