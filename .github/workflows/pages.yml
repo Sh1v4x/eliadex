@@ -44,6 +44,13 @@ jobs:
                       assets: [.assets[] | {name: .name, url: .browser_download_url, dc: .download_count}]}]' \
             > site/patchnote/data.json || echo '[]' > site/patchnote/data.json
           echo "data.json : $(wc -c < site/patchnote/data.json) octets, $(grep -o '\"tag\"' site/patchnote/data.json | wc -l) versions"
+          # Compteur d'installations = somme des download_count des installeurs
+          # (.exe / .msi / .dmg), même périmètre que le compteur du site. Exposé
+          # dans stats.json pour un badge dynamique dans le README.
+          gh api "repos/${{ github.repository }}/releases?per_page=100" \
+            --jq '{installs: ([.[].assets[] | select(.name|test("(?i)(-setup\\.exe|\\.msi|\\.dmg)$")) | .download_count] | add // 0)}' \
+            > site/patchnote/stats.json || echo '{"installs":0}' > site/patchnote/stats.json
+          echo "stats.json : $(cat site/patchnote/stats.json)"
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
