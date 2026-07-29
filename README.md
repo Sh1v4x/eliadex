@@ -10,6 +10,7 @@ Recherche, craft, favoris, sets & builds — posé au-dessus du jeu, et **99 % h
 <br>
 
 [![Version](https://img.shields.io/github/v/release/Sh1v4x/eliadex?style=for-the-badge&label=version&labelColor=0a1f2a&color=7ae8e0)](https://github.com/Sh1v4x/eliadex/releases/latest)
+[![Installations](https://img.shields.io/badge/dynamic/json?style=for-the-badge&label=installations&labelColor=0a1f2a&color=f5d98a&query=$.installs&url=https://sh1v4x.github.io/eliadex/patchnote/stats.json)](https://github.com/Sh1v4x/eliadex/releases)
 ![Windows](https://img.shields.io/badge/Windows-x64-7ae8e0?style=for-the-badge&labelColor=0a1f2a&logo=windows11&logoColor=7ae8e0)
 ![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-7ae8e0?style=for-the-badge&labelColor=0a1f2a&logo=apple&logoColor=7ae8e0)
 
