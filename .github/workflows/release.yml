@@ -4,9 +4,13 @@
 # Le code source vit dans le dépôt PRIVÉ `eliadex-source` : ce workflow le
 # checkout via le secret SOURCE_TOKEN (PAT avec Contents: Read sur le privé),
 # build macOS + Windows, puis publie la Release ICI via le GITHUB_TOKEN intégré.
+# Enfin, le job `announce` poste le patchnote sur Discord — seulement si les
+# DEUX builds ont réussi.
 #
 # Prérequis (Settings > Secrets du dépôt public) :
-#   SOURCE_TOKEN = PAT (fine-grained: Contents Read sur Sh1v4x/eliadex-source).
+#   SOURCE_TOKEN         = PAT (fine-grained: Contents Read sur Sh1v4x/eliadex-source).
+#   DISCORD_WEBHOOK_URL  = URL du webhook du salon d'annonces.
+#                          Facultatif : sans lui, l'annonce est simplement sautée.
 #
 # Déclenchement : onglet Actions > "Build & Release" > Run workflow (choisis le
 # tag, ex. v0.1.0). Ou pousse un tag v*.*.* sur CE dépôt.
@@ -22,6 +26,11 @@ on:
         description: "Ref source à builder (branche ou tag du dépôt privé)"
         required: false
         default: main
+      announce:
+        description: "Poster le patchnote sur Discord à la fin"
+        type: boolean
+        required: false
+        default: true
   push:
     tags: ["v*.*.*"]
 
@@ -103,3 +112,56 @@ jobs:
           releaseBody: ${{ steps.changelog.outputs.body }}
           releaseDraft: false
           prerelease: false
+
+  # ---------------------------------------------------------------------------
+  # ANNONCE DISCORD
+  # ---------------------------------------------------------------------------
+  # `needs: build` attend TOUTE la matrice. C'est le seul moment où les deux
+  # installeurs existent : `tauri-action` crée la release dès le premier job
+  # (macOS), donc un déclencheur `release: published` partirait pendant que le
+  # build Windows tourne encore, et annoncerait une version à moitié publiée.
+  #
+  # `if: success()` : avec fail-fast:false, un job en échec laisse la matrice
+  # continuer, mais `needs.build.result` vaut alors 'failure' → pas d'annonce.
+  announce:
+    needs: build
+    if: success() && (github.event_name == 'push' || github.event.inputs.announce != 'false')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout de la source privée
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ github.event.inputs.ref || 'main' }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Sauter proprement plutôt qu'échouer : un build réussi ne doit pas être
+      # marqué en rouge parce que le secret Discord n'est pas configuré.
+      - name: Webhook configuré ?
+        id: check
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "::warning::DISCORD_WEBHOOK_URL absent — annonce sautée."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --expect-version : refuse d'annoncer si LAST_PATCHNOTE.md ne correspond
+      # pas au tag publié. Cas réel : un re-run du build sur un ancien tag, alors
+      # que `main` porte déjà le patchnote d'une version plus récente.
+      - name: Annonce du patchnote sur Discord
+        if: steps.check.outputs.ok == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          node scripts/discord/post-patchnote.mjs \
+            --expect-version "$TAG" \
+            --release-url "https://github.com/${{ github.repository }}/releases/tag/$TAG"
