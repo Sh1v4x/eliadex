@@ -68,7 +68,9 @@
       border-radius:50%; background:var(--teal); opacity:.6;}
     .pn-list strong{color:var(--ink); font-weight:600;}
     .pn-body p{color:var(--muted); font-size:14.5px;}
-    .pn-img{display:block; width:100%; max-width:520px; height:auto; margin:14px 0 4px;
+    /* Pleine largeur de la carte : la hauteur suit le ratio de l'image, ce qui
+       évite le vide à droite qu'un max-width laissait. */
+    .pn-img{display:block; width:100%; height:auto; margin:14px 0 4px;
             border-radius:12px; border:1px solid rgba(255,255,255,.08);}
     .back{display:inline-flex; align-items:center; gap:7px; font-size:14px; color:var(--muted2); margin-bottom:26px;}
     .back:hover{color:var(--gold);}
