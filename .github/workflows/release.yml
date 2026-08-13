@@ -114,6 +114,31 @@ jobs:
           prerelease: false
 
   # ---------------------------------------------------------------------------
+  # SITE VITRINE
+  # ---------------------------------------------------------------------------
+  # Le patchnote du site est un `data.json` FIGÉ au déploiement : sans un
+  # redéploiement, une nouvelle release n'y apparaît jamais.
+  #
+  # On déclenche pages.yml sur `main` plutôt que d'écouter l'événement `release`
+  # dans pages.yml : un run déclenché par une release s'exécute sur la référence
+  # du TAG, que l'environnement github-pages refuse (protégé sur `main`), et qui
+  # publierait de toute façon le site tel qu'il était au moment du tag — donc
+  # sans les correctifs apportés au site depuis.
+  #
+  # Indépendant de l'annonce Discord : couper l'une ne doit pas couper l'autre.
+  site:
+    needs: build
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Redéploie le site vitrine (patchnote statique)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --repo ${{ github.repository }} --ref main
+
+  # ---------------------------------------------------------------------------
   # ANNONCE DISCORD
   # ---------------------------------------------------------------------------
   # `needs: build` attend TOUTE la matrice. C'est le seul moment où les deux
