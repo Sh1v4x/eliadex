@@ -6,9 +6,11 @@ on:
   push:
     branches: [main]
     paths: ["site/**", ".github/workflows/pages.yml"]
-  # Re-déploie (donc régénère le patchnote statique) quand une release change.
-  release:
-    types: [published, edited, deleted]
+  # Pas de déclencheur `release` : un tel run s'exécute sur la référence du TAG,
+  # que l'environnement github-pages refuse (protégé sur `main`) — et qui
+  # publierait le site tel qu'il était AU MOMENT DU TAG, donc sans les
+  # correctifs apportés depuis. C'est le workflow de release qui appelle
+  # `workflow_dispatch` ci-dessous, sur `main`.
   workflow_dispatch:
 
 permissions:
