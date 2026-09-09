@@ -78,29 +78,42 @@ jobs:
         with:
           targets: ${{ matrix.rust_target }}
 
-      # La base de jeu et les images sont VERSIONNÉES et embarquées telles
-      # quelles. Elles ne sont plus régénérées ici : l'ingestion dépend de six
-      # sites communautaires, dont un était injoignable pendant le build du
-      # 28 août, et `sync:db` écrasait la bonne base par ce qu'elle venait de
-      # produire. Le rafraîchissement des données se fait désormais en local,
-      # se vérifie, et arrive par un commit.
-      - name: Vérifier la base de jeu embarquée
+      # L'APP N'EMBARQUE PLUS DE BASE DE JEU. Elle lisait son catalogue dans un
+      # SQLite livré avec l'installeur, et ce pas vérifiait qu'il n'était pas
+      # vide (issues #19 à #22). Tout vient désormais de l'API, et le catalogue
+      # est semé côté serveur : il n'y a plus rien à vérifier ici.
+      #
+      # CE QUI LE REMPLACE EST LE MÊME GENRE DE GARDE-FOU, pour le même genre de
+      # panne. `NEXT_PUBLIC_ELIADEX_API` est INLINÉE dans le bundle au build
+      # (export statique) : oubliée, elle retombe sur `http://localhost:28787`,
+      # et comme l'app exige désormais un compte, l'installeur livré ne s'ouvre
+      # chez PERSONNE. Une release entière à refaire, pour une variable absente.
+      - name: Vérifier l'URL de l'API
         shell: bash
+        env:
+          API_URL: ${{ vars.ELIADEX_API_URL || 'https://api.eliadex.com' }}
         run: |
-          bun -e '
-            const { Database } = await import("bun:sqlite");
-            const db = new Database("app/src-tauri/resources/gamedata.db", { readonly: true });
-            const n = (t) => db.query(`SELECT COUNT(*) c FROM ${t}`).get().c;
-            const items = n("items"), monsters = n("monsters"), recipes = n("recipes");
-            console.log(`items ${items} · monstres ${monsters} · recettes ${recipes}`);
-            if (items < 5000 || monsters < 500 || recipes < 1000) {
-              console.error("Base de jeu vide ou incomplète — rien ne part avec ça.");
-              process.exit(1);
-            }
-          '
+          echo "URL compilée dans l'installeur : $API_URL"
+          case "$API_URL" in
+            https://*) ;;
+            *) echo "::error::L'URL de l'API doit être en https, pas « $API_URL »."; exit 1 ;;
+          esac
+          case "$API_URL" in
+            *localhost*|*127.0.0.1*)
+              echo "::error::L'URL de l'API pointe sur la machine de build."; exit 1 ;;
+          esac
+          code=$(curl -sS -m 20 -o /dev/null -w '%{http_code}' "$API_URL/ping" || echo 000)
+          if [ "$code" != "200" ]; then
+            echo "::error::$API_URL/ping a répondu $code — on ne livre pas un installeur qui vise une API muette."
+            exit 1
+          fi
+          echo "API joignable."
 
-      - name: Dépendances de l'app
-        run: cd app && bun install
+      # UNE SEULE INSTALLATION, À LA RACINE : le dépôt est un monorepo Bun et
+      # les paquets se lient entre eux. Un `bun install` dans `apps/app` ne
+      # résoudrait ni `@eliadex/core` ni `@eliadex/ui`.
+      - name: Dépendances du monorepo
+        run: bun install
 
       # Description de la release : extraite du CHANGELOG.md (section du tag
       # publié). Si aucune section ne correspond, le corps reste vide et le
@@ -132,8 +145,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Lue par `packages/core/src/api/client.ts` au moment du build de
+          # Next, et gravée dans le bundle : elle ne se change plus après.
+          NEXT_PUBLIC_ELIADEX_API: ${{ vars.ELIADEX_API_URL || 'https://api.eliadex.com' }}
         with:
-          projectPath: app
+          projectPath: apps/app
           args: ${{ matrix.args }}
           tagName: ${{ github.event.inputs.tag || github.ref_name }}
           releaseName: Eliadex ${{ github.event.inputs.tag || github.ref_name }}
@@ -215,6 +231,6 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          node scripts/discord/post-patchnote.mjs \
+          node tools/scripts/discord/post-patchnote.mjs \
             --expect-version "$TAG" \
             --release-url "https://github.com/${{ github.repository }}/releases/tag/$TAG"
