@@ -1,0 +1,5 @@
+# Produits au déploiement par .github/workflows/pages.yml, depuis les releases.
+# Ils n'ont rien à faire ici : versionnés, ils figeraient le patchnote à l'état
+# du dernier commit au lieu de celui du dernier déploiement.
+site/patchnote/data.json
+site/patchnote/stats.json

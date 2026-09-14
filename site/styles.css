@@ -1,0 +1,339 @@
+/* ===========================================================================
+     ELIADEX — site vitrine
+
+     L'identité est celle du site d'origine : Cinzel pour les titres, Outfit
+     pour le texte, le teal et l'or sur une nuit pétrole, le champ d'étoiles, et
+     surtout LE LOGO EN ORBITE — anneau conique qui tourne, cercle inverse,
+     logo qui flotte. C'est la signature de la page, on n'y touche pas.
+
+     Ce qui change est la tenue : une échelle typographique qui s'assume, des
+     espacements réguliers, des panneaux qui ne se ressemblent pas tous, et des
+     animations qui accompagnent au lieu de s'agiter.
+     =========================================================================== */
+  :root {
+    /* Le logo. Le chemin est relatif à CETTE feuille, pas à la page qui la
+       charge : `patchnote/index.html` le résout donc aussi bien que la
+       racine, sans avoir à connaître sa propre profondeur. */
+    --logo: url("logo.png");
+
+    --teal: #7fe8e0;
+    --teal-dim: rgba(127, 232, 224, 0.14);
+    --teal-line: rgba(127, 232, 224, 0.28);
+    --gold: #f5d98a;
+    --gold2: #d4a437;
+    --ink: #dce9ee;
+    --muted: #a9c1c9;
+    --muted2: #8fabb4;
+    --faint: #6d8790;
+    --title: #fbf3e0;
+    --night: #061219;
+    --panel: rgba(19, 52, 64, 0.55);
+    --panel2: rgba(10, 31, 42, 0.55);
+    --measure: 62ch;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.68;
+    color: var(--ink);
+    background:
+      radial-gradient(1400px 900px at 50% -10%, #0f2f3d 0%, #0a1f2a 45%, var(--night) 100%)
+      var(--night);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { font-family: "Cinzel", Georgia, serif; color: var(--title); margin: 0; text-wrap: balance; }
+  h1 { font-weight: 700; line-height: 1.05; }
+  h2 { font-weight: 600; line-height: 1.12; }
+  h3 { font-weight: 600; }
+
+  a { color: var(--teal); text-decoration: none; transition: color 0.2s; }
+  a:hover { color: var(--gold); }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+  ::selection { background: rgba(127, 232, 224, 0.3); color: #eafcfa; }
+
+  .wrap { width: min(1180px, 100% - 3rem); margin-inline: auto; }
+  section { padding-block: clamp(3.5rem, 8vw, 6rem); }
+
+  /* --- Le champ d'étoiles, repris tel quel ---------------------------------- */
+  .starfield {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.55;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(180,245,239,.7) 50%, transparent),
+      radial-gradient(1px 1px at 70% 20%, rgba(245,217,138,.6) 50%, transparent),
+      radial-gradient(1.5px 1.5px at 40% 70%, rgba(180,245,239,.5) 50%, transparent),
+      radial-gradient(1px 1px at 85% 60%, rgba(180,245,239,.6) 50%, transparent),
+      radial-gradient(1px 1px at 15% 80%, rgba(245,217,138,.5) 50%, transparent),
+      radial-gradient(1.5px 1.5px at 60% 45%, rgba(180,245,239,.45) 50%, transparent),
+      radial-gradient(1px 1px at 92% 88%, rgba(180,245,239,.5) 50%, transparent);
+  }
+  header, main, footer { position: relative; z-index: 1; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinRev { to { transform: rotate(-360deg); } }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-18px) rotate(1deg); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+  /* --- En-tête -------------------------------------------------------------- */
+  header {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(7, 20, 27, 0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--teal-dim);
+  }
+  .nav { display: flex; align-items: center; gap: 1.6rem; height: 66px; }
+  .brand { display: flex; align-items: center; gap: 0.65rem; }
+  .brand .glyph {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: var(--logo) center / contain no-repeat;
+    filter: drop-shadow(0 0 8px rgba(127,232,224,.4));
+  }
+  .brand span {
+    font-family: "Cinzel", serif; font-weight: 700; font-size: 1.05rem;
+    letter-spacing: 0.16em; color: var(--title);
+  }
+  .navlinks { display: flex; gap: 1.5rem; margin-left: auto; font-size: 0.95rem; }
+  .navlinks a { color: var(--muted); font-weight: 400; }
+  .navlinks a:hover { color: var(--gold); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 0.85rem 1.4rem; border-radius: 13px;
+    font-weight: 700; font-size: 0.95rem; border: 1px solid transparent;
+    transition: filter 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #25180a; box-shadow: 0 10px 30px rgba(212,164,55,.32);
+  }
+  .btn-gold:hover { color: #25180a; filter: brightness(1.06); transform: translateY(-1px); }
+  .btn-ghost { background: rgba(127,232,224,.08); border-color: var(--teal-line); color: #eafcfa; }
+  .btn-ghost:hover { border-color: var(--gold); color: #eafcfa; }
+  .btn-sm { padding: 0.55rem 1rem; font-size: 0.88rem; border-radius: 10px; }
+  .btn .lot { width: 22px; height: 22px; flex: none; }
+
+  .eyebrow {
+    display: block; font-size: 0.76rem; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--teal); font-weight: 600;
+    margin-bottom: 1.1rem;
+  }
+  .lede { color: var(--muted); max-width: var(--measure); font-size: 1.08rem; }
+
+  /* --- HÉROS : LE LOGO EN ORBITE, la signature du site ---------------------- */
+  .hero { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: clamp(2rem, 5vw, 3.5rem); align-items: center; }
+  .hero > div { animation: rise 0.7s ease-out backwards; }
+  .hero h1 { font-size: clamp(2.3rem, 4.6vw, 3.4rem); letter-spacing: 0.005em; }
+  .hero h1 em { font-style: normal; color: var(--teal); }
+  .hero .lede { margin-top: 1.5rem; font-size: 1.14rem; }
+  .cta { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 2.1rem; }
+  .facts {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; margin-top: 1.3rem;
+    font-size: 0.86rem; color: var(--faint);
+  }
+  .facts b { color: var(--muted2); font-weight: 500; }
+
+  /* PAS DE `justify-self: center` ICI. Il dimensionne l'élément sur son
+     contenu — or le contenu est en position absolue et en pourcentage, donc
+     la largeur tombait à zéro et l'orbe disparaissait. On borne la largeur
+     et on centre par les marges. */
+  .orb {
+    position: relative; width: 100%; max-width: 430px; aspect-ratio: 1;
+    margin-inline: auto; display: grid; place-items: center;
+  }
+  /* L'anneau conique et le cercle inverse, exactement comme avant. */
+  .orb::before, .orb::after {
+    content: ""; position: absolute; inset: 0; margin: auto; border-radius: 50%;
+  }
+  .orb::before {
+    width: 92%; height: 92%; filter: blur(2px);
+    background: conic-gradient(from 0deg, transparent, rgba(127,232,224,.5), transparent 55%, rgba(245,217,138,.35), transparent);
+    animation: spin 14s linear infinite;
+  }
+  .orb::after {
+    width: 76%; height: 76%; border: 2px solid rgba(127,232,224,.25);
+    box-shadow: inset 0 0 60px rgba(127,232,224,.25), 0 0 80px rgba(127,232,224,.2);
+    animation: spinRev 22s linear infinite;
+  }
+  /* Et par-dessus, la scène Lottie : segments qui courent, motes en orbite. */
+  .orb .lottie-orbit { position: absolute; inset: 0; }
+  .orb .glyph {
+    position: relative; width: 63%; aspect-ratio: 1; border-radius: 48px;
+    background: var(--logo) center / contain no-repeat;
+    filter: drop-shadow(0 20px 45px rgba(0,0,0,.6)) drop-shadow(0 0 30px rgba(127,232,224,.35));
+    animation: float 7s ease-in-out infinite;
+  }
+
+  /* --- Fonctions ------------------------------------------------------------ */
+  .feats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.1rem; margin-top: 2.8rem; }
+  .feat {
+    grid-column: span 2; padding: 1.6rem;
+    border: 1px solid var(--teal-dim); border-radius: 18px;
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .feat:hover { border-color: var(--teal-line); transform: translateY(-3px); }
+  .feat.lead { grid-column: span 3; }
+  .feat .ic {
+    width: 42px; height: 42px; border-radius: 12px; margin-bottom: 1.1rem;
+    /* La scène Lottie remplit la boîte de contenu : c'est le creux qui lui
+       donne sa taille, et elle reste à distance de la bordure. */
+    padding: 9px; display: grid; place-items: center; color: var(--teal);
+    background: rgba(127,232,224,.09); border: 1px solid var(--teal-dim);
+  }
+  .feat .ic svg { width: 100%; height: 100%; }
+  .feat h3 { font-size: 1.12rem; margin-bottom: 0.55rem; letter-spacing: 0.01em; }
+  .feat p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  /* --- Le mode compact, repris du site d'origine ---------------------------- */
+  .compact { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 3.5rem); align-items: center; }
+  .compact h2 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin-bottom: 1rem; }
+  .pin {
+    border: 1px solid var(--teal-line); border-radius: 16px; overflow: hidden;
+    background: linear-gradient(180deg, rgba(19,52,64,.9), rgba(10,31,42,.95));
+    box-shadow: 0 30px 70px -25px rgba(0,0,0,.8);
+  }
+  .pin-bar {
+    display: flex; align-items: center; gap: 0.55rem;
+    padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--teal-dim);
+    background: rgba(6,18,25,.6);
+  }
+  .pin-bar .glyph { width: 16px; height: 16px; border-radius: 4px; flex: none; background: var(--logo) center / contain no-repeat; }
+  .pin-bar b { font-family: "Cinzel", serif; font-size: 0.72rem; letter-spacing: 0.14em; color: var(--muted); font-weight: 600; }
+  .pin-bar em { margin-left: auto; font-style: normal; font-size: 0.7rem; color: var(--faint); }
+  .pin-rows { padding: 0.5rem; display: grid; gap: 0.35rem; }
+  .row { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0.6rem; border-radius: 9px; background: rgba(6,18,25,.45); }
+  .row i { width: 7px; height: 20px; border-radius: 2px; flex: none; background: var(--tier); }
+  .row span { flex: 1; font-size: 0.87rem; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row em { font-style: normal; font-size: 0.78rem; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+  /* --- Chiffres -------------------------------------------------------------- */
+  /* La bande garde son rapport de forme : elle se redimensionne avec la
+     colonne sans jamais rogner le champ de points. */
+  .flux { width: 100%; aspect-ratio: 960 / 140; margin-bottom: 1.8rem; }
+
+  .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--teal-dim); border: 1px solid var(--teal-dim); border-radius: 16px; overflow: hidden; }
+  .count { padding: 1.6rem; background: #081a24; }
+  .count b {
+    display: block; font-family: "Cinzel", serif; font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--title);
+    font-variant-numeric: tabular-nums;
+  }
+  .count span { display: block; margin-top: 0.25rem; font-size: 0.86rem; color: var(--faint); }
+
+  /* --- Téléchargement --------------------------------------------------------- */
+  .dl { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-top: 2.6rem; }
+  .dl-card {
+    border: 1px solid var(--teal-dim); border-radius: 18px; padding: 1.9rem;
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem;
+  }
+  .dl-card .mark { display: block; width: 34px; height: 34px; margin-bottom: 0.5rem; }
+  .dl-card h3 { font-size: 1.35rem; }
+  .dl-card .sys { font-size: 0.85rem; color: var(--faint); }
+  .dl-card .btn { margin-top: 1.2rem; }
+
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-top: 2rem; }
+  .step { border: 1px solid var(--teal-dim); border-radius: 16px; padding: 1.6rem; }
+  .step h3 { font-size: 1.02rem; margin-bottom: 0.15rem; }
+  .step .warn { display: block; font-size: 0.78rem; color: var(--faint); margin-bottom: 1.1rem; }
+  .step ol { margin: 0; padding-left: 1.2rem; color: var(--muted); font-size: 0.93rem; }
+  .step li { margin-bottom: 0.55rem; }
+  .step li:last-child { margin-bottom: 0; }
+  .step b { color: var(--ink); font-weight: 500; }
+
+  /* --- Pied de page ------------------------------------------------------------ */
+  footer { border-top: 1px solid var(--teal-dim); padding-block: 3rem 2.5rem; }
+  .foot { display: grid; grid-template-columns: 1.5fr 1fr 1.7fr; gap: 2.5rem; }
+  .foot h4 {
+    font-family: "Cinzel", serif; font-size: 0.78rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--teal); margin: 0 0 1rem; font-weight: 600;
+  }
+  .foot p { color: var(--faint); font-size: 0.88rem; margin: 0; }
+  .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  .foot li { font-size: 0.88rem; }
+  .foot li a { color: var(--muted2); }
+  .legal { margin-top: 2.6rem; padding-top: 1.6rem; border-top: 1px solid var(--teal-dim); }
+  .legal p { color: var(--faint); font-size: 0.78rem; line-height: 1.75; max-width: 92ch; }
+
+  /* --- Patchnote : une carte par version, la dernière en tête -------------- */
+  .pn-wrap { width: min(840px, 100% - 3rem); margin-inline: auto; }
+  .pn-card {
+    border: 1px solid var(--teal-dim); border-radius: 20px;
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    padding: 1.8rem; margin-bottom: 1.2rem;
+  }
+  .pn-head { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.3rem; }
+  .pn-ver {
+    font-family: "Cinzel", serif; font-weight: 700; font-size: 1.45rem; color: var(--title);
+  }
+  .pn-date { font-size: 0.86rem; color: var(--faint); }
+  .pn-latest {
+    margin-left: auto; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #25180a; padding: 0.25rem 0.6rem; border-radius: 999px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+  }
+  /* Le titre de section (Nouveautés, Corrections…) garde son sens : c'est lui
+     qui classe la ligne qui suit, pas un ornement. */
+  .pn-sub {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: "Cinzel", serif; font-size: 0.82rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal);
+    margin: 1.5rem 0 0.7rem;
+  }
+  .pn-card > .pn-sub:first-of-type { margin-top: 0; }
+  .pn-sub svg { width: 15px; height: 15px; flex: none; }
+  /* Pleine largeur de la carte : la hauteur suit le rapport de l'image, ce
+     qui évite le vide à droite qu'un `max-width` laissait. */
+  .pn-img {
+    display: block; width: 100%; height: auto; margin: 1rem 0 0.3rem;
+    border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .pn-list { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+  .pn-list li { color: var(--muted); font-size: 0.96rem; }
+  .pn-list li strong { color: var(--ink); font-weight: 600; }
+  .pn-card > p { color: var(--muted); margin: 0.6rem 0; font-size: 0.96rem; }
+  .pn-card > p strong { color: var(--ink); font-weight: 600; }
+
+  /* --- Adaptatif ---------------------------------------------------------------- */
+  @media (max-width: 980px) {
+    .hero, .compact { grid-template-columns: 1fr; }
+    .orb { max-width: 420px; margin-inline: auto; }
+    .feats { grid-template-columns: repeat(2, 1fr); }
+    .feat, .feat.lead { grid-column: span 1; }
+    .counts { grid-template-columns: repeat(2, 1fr); }
+    .foot { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 680px) {
+    .navlinks, .nav > .btn { display: none; }
+    .navtoggle { display: inline-flex; }
+    .feats, .dl, .steps, .counts { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* --- Navigation repliée ---------------------------------------------------
+     Sous 680 px les liens sortent de la barre et passent dans un panneau qui
+     se déplie sous elle. Le bouton de téléchargement les suit : il est la
+     raison d'être de la page, il ne peut pas disparaître avec eux. */
+  .navtoggle {
+    display: none; margin-left: auto; width: 42px; height: 42px; flex: none;
+    align-items: center; justify-content: center; cursor: pointer;
+    border-radius: 11px; border: 1px solid var(--teal-line);
+    background: rgba(127, 232, 224, 0.08); color: var(--ink);
+  }
+  .navtoggle:hover { border-color: var(--gold); color: var(--gold); }
+  .navtoggle svg { width: 20px; height: 20px; }
+  .mobilemenu { display: none; flex-direction: column; gap: 0.15rem; padding: 0.3rem 0 1.1rem; }
+  .mobilemenu.open { display: flex; }
+  .mobilemenu a { padding: 0.7rem 0.6rem; border-radius: 10px; color: var(--muted); font-weight: 400; }
+  .mobilemenu a:hover { background: rgba(127, 232, 224, 0.08); color: var(--gold); }
+  .mobilemenu .btn { justify-content: center; margin-top: 0.6rem; }
+
