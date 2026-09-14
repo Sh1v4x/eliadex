@@ -3,166 +3,197 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Patchnote — Eliadex (companion Wakfu)</title>
   <meta name="description" content="Toutes les nouveautés et corrections d'Eliadex, le companion Wakfu : à jour à chaque version, en direct." />
   <link rel="canonical" href="https://sh1v4x.github.io/eliadex/patchnote/" />
-  <link rel="icon" type="image/png" href="../logo.png" />
+
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Eliadex" />
+  <meta property="og:locale" content="fr_FR" />
   <meta property="og:title" content="Patchnote — Eliadex" />
   <meta property="og:description" content="Nouveautés et corrections d'Eliadex, à chaque version." />
   <meta property="og:url" content="https://sh1v4x.github.io/eliadex/patchnote/" />
   <meta property="og:image" content="https://sh1v4x.github.io/eliadex/logo.png" />
+
+  <link rel="icon" type="image/png" href="../logo.png" />
+  <link rel="apple-touch-icon" href="../logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
   <script src="../config.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <style>
-    svg.lucide{ width:1em; height:1em; vertical-align:-.12em; stroke-width:2; }
-    :root{
-      --teal:#7fe8e0; --gold:#f5d98a; --gold2:#d4a437;
-      --ink:#dce9ee; --muted:#a9c1c9; --muted2:#8fabb4; --faint:#6d8790;
-      --title:#fbf3e0; --bd:rgba(122,232,224,.14);
-    }
-    *{box-sizing:border-box;}
-    html{scroll-behavior:smooth;}
-    body{margin:0; font-family:'Outfit',system-ui,sans-serif; color:var(--ink);
-      background:radial-gradient(1400px 900px at 50% -10%, #0f2f3d 0%, #0a1f2a 45%, #061219 100%);
-      min-height:100vh; overflow-x:hidden;}
-    a{color:var(--teal); text-decoration:none;} a:hover{color:var(--gold);}
-    h1,h2,h3{font-family:'Cinzel',serif; color:var(--title); margin:0;}
-    ::selection{background:rgba(122,232,224,.3); color:#eafcfa;}
-    ::-webkit-scrollbar{width:12px;} ::-webkit-scrollbar-track{background:#061219;}
-    ::-webkit-scrollbar-thumb{background:#1c4150; border-radius:20px; border:3px solid #061219;}
-    .wrap{max-width:820px; margin:0 auto; padding:0 24px;}
-    .starfield{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
-      background-image:radial-gradient(1px 1px at 20% 30%, rgba(180,245,239,.7) 50%, transparent),
-        radial-gradient(1px 1px at 70% 20%, rgba(245,217,138,.6) 50%, transparent),
-        radial-gradient(1.5px 1.5px at 40% 70%, rgba(180,245,239,.5) 50%, transparent),
-        radial-gradient(1px 1px at 85% 60%, rgba(180,245,239,.6) 50%, transparent),
-        radial-gradient(1px 1px at 15% 80%, rgba(245,217,138,.5) 50%, transparent),
-        radial-gradient(1.5px 1.5px at 60% 45%, rgba(180,245,239,.45) 50%, transparent);}
-    nav{position:sticky; top:0; z-index:40; backdrop-filter:blur(14px);
-      background:rgba(7,20,27,.72); border-bottom:1px solid rgba(122,232,224,.12);}
-    nav .wrap{max-width:1180px; display:flex; align-items:center; gap:14px; padding-top:14px; padding-bottom:14px;}
-    .logo{width:34px; height:34px; border-radius:9px; filter:drop-shadow(0 0 8px rgba(122,232,224,.4));}
-    .brand{font-family:'Cinzel',serif; font-weight:800; font-size:19px; letter-spacing:2px; color:var(--gold);}
-    .content{position:relative; z-index:2; padding:52px 0 90px;}
-    .eyebrow{font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--teal); font-weight:600;}
-    h1{font-size:40px; line-height:1.05; margin:10px 0 8px;}
-    .lead{color:var(--muted); font-size:15px; margin:0 0 34px;}
-    .card{background:linear-gradient(180deg, rgba(19,52,64,.7), rgba(10,31,42,.7));
-      border:1px solid var(--bd); border-radius:18px;}
-    .pn-card{padding:22px 24px; margin-bottom:18px;}
-    .pn-head{display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:wrap;}
-    .pn-ver{font-family:'Cinzel',serif; font-weight:800; font-size:22px; color:var(--gold);}
-    .pn-date{font-size:13px; color:var(--faint);}
-    .pn-latest{font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
-      color:#0a1f2a; background:linear-gradient(135deg,var(--gold),var(--gold2)); padding:3px 9px; border-radius:999px;}
-    .pn-sub{font-family:'Outfit',sans-serif; font-size:12.5px; font-weight:700; letter-spacing:.4px;
-      text-transform:uppercase; color:var(--teal); margin:16px 0 8px;}
-    .pn-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;}
-    .pn-list li{position:relative; padding-left:18px; color:var(--muted); font-size:14.5px; line-height:1.5;}
-    .pn-list li::before{content:""; position:absolute; left:2px; top:9px; width:5px; height:5px;
-      border-radius:50%; background:var(--teal); opacity:.6;}
-    .pn-list strong{color:var(--ink); font-weight:600;}
-    .pn-body p{color:var(--muted); font-size:14.5px;}
-    /* Pleine largeur de la carte : la hauteur suit le ratio de l'image, ce qui
-       évite le vide à droite qu'un max-width laissait. */
-    .pn-img{display:block; width:100%; height:auto; margin:14px 0 4px;
-            border-radius:12px; border:1px solid rgba(255,255,255,.08);}
-    .back{display:inline-flex; align-items:center; gap:7px; font-size:14px; color:var(--muted2); margin-bottom:26px;}
-    .back:hover{color:var(--gold);}
-    .muted{color:var(--muted2);}
-    @media(max-width:640px){ h1{font-size:30px;} }
-  </style>
 </head>
 <body>
-  <div class="starfield"></div>
 
-  <nav>
-    <div class="wrap">
-      <a href="../" style="display:flex; align-items:center; gap:12px;">
-        <img src="../logo.png" alt="" class="logo" />
-        <span class="brand">ELIADEX</span>
-      </a>
-      <div style="flex:1;"></div>
-      <a href="../" style="color:#b7ccd4; font-size:14.5px; font-weight:500;">Accueil</a>
+<div class="starfield"></div>
+
+<header>
+  <nav class="wrap nav">
+    <a href="../" class="brand"><span class="glyph"></span><span>ELIADEX</span></a>
+    <div class="navlinks">
+      <a href="../#fonctions">Fonctions</a>
+      <a href="../#apercu">Aperçu</a>
+      <a href="../#catalogue">Catalogue</a>
+      <a class="gh" href="https://github.com/Sh1v4x/eliadex">GitHub</a>
     </div>
+    <a href="../#telecharger" class="btn btn-gold btn-sm">Télécharger</a>
+    <button class="navtoggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobilemenu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </nav>
+  <div class="wrap mobilemenu" id="mobilemenu">
+    <a href="../#fonctions">Fonctions</a>
+    <a href="../#apercu">Aperçu</a>
+    <a href="../#catalogue">Catalogue</a>
+    <a class="gh" href="https://github.com/Sh1v4x/eliadex">GitHub</a>
+    <a href="../#telecharger" class="btn btn-gold">Télécharger</a>
+  </div>
+</header>
 
-  <div class="content">
-    <div class="wrap">
-      <a href="../" class="back"><i data-lucide="arrow-left"></i> Retour à l'accueil</a>
-      <div class="eyebrow">Journal des versions</div>
-      <h1>Patchnote</h1>
-      <p class="lead">Toutes les nouveautés et corrections d'Eliadex, mises à jour <strong>en direct</strong> à chaque version.</p>
-      <div id="pn-list"><p class="muted">Chargement du patchnote…</p></div>
+<main>
+  <section class="pn-wrap">
+    <span class="eyebrow">Journal des versions</span>
+    <h2 style="font-size:clamp(1.9rem,3.8vw,2.7rem)">Ce qui a changé, et quand</h2>
+    <p class="lede" style="margin-top:1rem;margin-bottom:2.5rem">
+      Chaque version publiée, la plus récente en tête.
+      <a href="../">Revenir au site</a>
+    </p>
+    <div id="pn-liste"><p class="lede">Chargement du patchnote…</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="legal" style="margin-top:0;border-top:0;padding-top:0">
+      <p>
+        Eliadex — Wakfu © Ankama, tous droits réservés. Projet communautaire
+        indépendant, non affilié à ni approuvé par Ankama.
+        © 2026 Eliadex.
+      </p>
     </div>
   </div>
+</footer>
 
-  <script>
-    (function () {
-      var c = window.ELIADEX || { owner: "Sh1v4x", repo: "eliadex" };
-      var el = document.getElementById("pn-list");
-      if (window.lucide) window.lucide.createIcons(); // icône du lien "Retour"
+<script>
+(function () {
+  "use strict";
 
-      function esc(s) { return String(s).replace(/[&<>]/g, function (x) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]; }); }
-      function escAttr(s) { return esc(s).replace(/"/g, "&quot;"); }
-      function bold(s) { return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
-      function md(body) {
-        var out = "", inList = false;
-        var close = function () { if (inList) { out += "</ul>"; inList = false; } };
-        body.split(/\r?\n/).forEach(function (raw) {
-          var line = raw.trim();
-          if (!line) { close(); return; }
-          var m;
-          if ((m = line.match(/^#{1,6}\s+(.*)$/))) {
-            close();
-            var label = m[1].replace(/^[^\p{L}]+/u, "").trim(); // retire l'emoji/espaces de tête
-            var icon = /nouveaut/i.test(label) ? "sparkles" : /correction/i.test(label) ? "bug" : "chevron-right";
-            out += '<div class="pn-sub"><i data-lucide="' + icon + '"></i> ' + bold(esc(label)) + "</div>";
-          }
-          else if ((m = line.match(/^!\[([^\]]*)\]\((https:\/\/[^\s)]+)\)$/))) {
-            close();
-            out += '<img class="pn-img" src="' + escAttr(m[2]) + '" alt="' + escAttr(m[1]) + '" loading="lazy">';
-          }
-          else if ((m = line.match(/^[-*]\s+(.*)$/))) { if (!inList) { out += '<ul class="pn-list">'; inList = true; } out += "<li>" + bold(esc(m[1])) + "</li>"; }
-          else { close(); out += "<p>" + bold(esc(line)) + "</p>"; }
-        });
-        close();
-        return out;
+  /* =========================================================================
+     LE PATCHNOTE
+
+     La source est `data.json`, figé au déploiement depuis les releases GitHub
+     — dont le corps vient du CHANGELOG. Fichier local, même origine : aucun
+     appel à l'API depuis le navigateur, donc aucune limite de 60 requêtes par
+     heure et par adresse.
+
+     Le rendu markdown ne couvre que ce que le CHANGELOG écrit vraiment : des
+     titres de section, des puces, du gras, et des captures. Rien de plus —
+     un moteur complet ici serait du code que personne n'appelle.
+     ========================================================================= */
+  var el = document.getElementById("pn-liste");
+
+  var esc = function (t) {
+    return String(t).replace(/[&<>]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+    });
+  };
+  var escAttr = function (t) { return esc(t).replace(/"/g, "&quot;"); };
+  var gras = function (t) { return t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); };
+
+  /* Trois pictogrammes, choisis sur le SENS du titre, pas sur son rang. */
+  var ICONES = {
+    neuf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/></svg>',
+    bug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M3 11h5M16 11h5M4 18h4M16 18h4M5 5l3 2M19 5l-3 2"/></svg>',
+    autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+  };
+
+  function renduMarkdown(body) {
+    var out = "", liste = false, para = [];
+    // UN PARAGRAPHE, PAS UNE LIGNE. Le CHANGELOG est écrit à la main et ses
+    // phrases sont coupées à 80 colonnes ; rendre chaque ligne source comme un
+    // <p> hachait une phrase en trois blocs séparés par du blanc. Les lignes
+    // de texte courant s'accumulent et ne sortent qu'à la rupture suivante.
+    var fermerPara = function () {
+      if (para.length) { out += "<p>" + gras(esc(para.join(" "))) + "</p>"; para = []; }
+    };
+    var fermer = function () {
+      fermerPara();
+      if (liste) { out += "</ul>"; liste = false; }
+    };
+    body.split(/\r?\n/).forEach(function (brut) {
+      var ligne = brut.trim();
+      if (!ligne) { fermer(); return; }
+      var m;
+      if ((m = ligne.match(/^#{1,6}\s+(.*)$/))) {
+        fermer();
+        // L'emoji de tête est retiré : le pictogramme le remplace, et deux
+        // symboles pour la même idée en font un de trop.
+        var label = m[1].replace(/^[^\p{L}]+/u, "").trim();
+        var ic = /nouveaut/i.test(label) ? ICONES.neuf
+          : /correction/i.test(label) ? ICONES.bug
+          : ICONES.autre;
+        out += '<div class="pn-sub">' + ic + gras(esc(label)) + "</div>";
+      } else if ((m = ligne.match(/^!\[([^\]]*)\]\((https:\/\/[^\s)]+)\)$/))) {
+        fermer();
+        out += '<img class="pn-img" src="' + escAttr(m[2]) + '" alt="' + escAttr(m[1]) + '" loading="lazy">';
+      } else if ((m = ligne.match(/^[-*]\s+(.*)$/))) {
+        fermerPara();
+        if (!liste) { out += '<ul class="pn-list">'; liste = true; }
+        out += "<li>" + gras(esc(m[1])) + "</li>";
+      } else {
+        if (liste) { out += "</ul>"; liste = false; }
+        para.push(ligne);
       }
-      function frDate(iso) {
-        try { return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(iso)); }
-        catch (e) { return ""; }
-      }
+    });
+    fermer();
+    return out;
+  }
 
-      // Source : data.json statique généré au déploiement (depuis les releases,
-      // dont le corps vient du CHANGELOG). Local → pas de rate-limit API.
-      fetch("data.json", { cache: "no-store" })
-        .then(function (r) { return r.ok ? r.json() : []; })
-        .then(function (list) {
-          if (!Array.isArray(list) || !list.length) {
-            el.innerHTML = '<p class="muted">Patchnote indisponible pour le moment.</p>';
-            return;
-          }
-          el.innerHTML = list.map(function (r, i) {
-            return '<article class="card pn-card">'
-              + '<div class="pn-head">'
-              + '<span class="pn-ver">' + esc(r.tag) + "</span>"
-              + '<span class="pn-date">' + frDate(r.date) + "</span>"
-              + (i === 0 ? '<span class="pn-latest">Dernière</span>' : "")
-              + "</div>"
-              + '<div class="pn-body">' + (r.body ? md(r.body) : '<p class="muted">—</p>') + "</div>"
-              + "</article>";
-          }).join("");
-          if (window.lucide) window.lucide.createIcons(); // icônes des sections (sparkles/bug)
-        }).catch(function () {
-          el.innerHTML = '<p class="muted">Patchnote indisponible pour le moment.</p>';
-        });
-    })();
-  </script>
+  var dateFr = function (iso) {
+    try {
+      return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+        .format(new Date(iso));
+    } catch (e) { return ""; }
+  };
+
+  fetch("data.json", { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (liste) {
+      if (!Array.isArray(liste) || !liste.length) {
+        el.innerHTML = '<p class="lede">Patchnote indisponible pour le moment.</p>';
+        return;
+      }
+      el.innerHTML = liste.map(function (r, i) {
+        return '<article class="pn-card">'
+          + '<div class="pn-head">'
+          + '<span class="pn-ver">' + esc(r.tag) + "</span>"
+          + '<span class="pn-date">' + dateFr(r.date) + "</span>"
+          + (i === 0 ? '<span class="pn-latest">Dernière</span>' : "")
+          + "</div>"
+          + (r.body ? renduMarkdown(r.body) : '<p class="lede">—</p>')
+          + "</article>";
+      }).join("");
+    })
+    .catch(function () {
+      el.innerHTML = '<p class="lede">Patchnote indisponible pour le moment.</p>';
+    });
+
+  /* ========================================================================= */
+  var bascule = document.querySelector(".navtoggle");
+  var menu = document.getElementById("mobilemenu");
+  if (bascule && menu) {
+    bascule.addEventListener("click", function () {
+      var ouvert = menu.classList.toggle("open");
+      bascule.setAttribute("aria-expanded", ouvert ? "true" : "false");
+    });
+  }
+
+  var c = window.ELIADEX || { owner: "Sh1v4x", repo: "eliadex" };
+  document.querySelectorAll("a.gh").forEach(function (a) {
+    a.href = "https://github.com/" + c.owner + "/" + c.repo;
+  });
+})();
+</script>
 </body>
 </html>
