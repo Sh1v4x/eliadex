@@ -26,6 +26,22 @@ Recherche, craft, favoris, sets & builds — posé au-dessus du jeu, et **99 % h
 
 ---
 
+## <img src="https://api.iconify.design/lucide:image.svg?color=%23f5d98a&width=26" align="top"> Aperçu
+
+<div align="center">
+<img src="docs/screenshots/accueil.jpg" alt="Accueil d'Eliadex : accès aux objets, équipements, bestiaire, donjons, liste à craft, sets et comparateur" width="100%" />
+</div>
+
+| Recherche | Fiche d'objet |
+|:--:|:--:|
+| ![Recherche d'items avec rareté et niveau](docs/screenshots/recherche.jpg) | ![Fiche d'une arme : effets et recette de craft](docs/screenshots/fiche.jpg) |
+
+<div align="center">
+<img src="docs/screenshots/carte.jpg" alt="Carte d'Astrub avec ses points de repère" width="100%" />
+</div>
+
+---
+
 ## <img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f5d98a&width=26" align="top"> Fonctionnalités
 
 |  |  |
